@@ -1,5 +1,5 @@
 <div align="center">
-<img src="./image.png" alt="Hamburguar 预览图" width="1500" />
+<img src="./image.png" alt="Hamburguar 预览图" />
 
 一个把「汉堡配料」和「六爻卦象」结合在一起的轻量互动网站。  
 用户可以自由组合六层食材，输入问题，获得对应卦象和文案结果。
