@@ -190,12 +190,15 @@ function renderGuaInfo(gua, yaoCode) {
 }
 
 function buildPrompt(gua, userData) {
+    const guaDetail = (gua.detail || '').trim() || '暂无详细释义';
+
     return `
 你是「Hamburguar」专属文案生成师，生成沉浸式美食占卜文案。
 输入信息：
 1. 汉堡配料：顶面包【${userData.topBun}】、上层馅料【${userData.upperFill}】、中层馅料【${userData.midFill}】、核心主馅【${userData.mainFill}】、下层馅料【${userData.lowerFill}】、底面包【${userData.bottomBun}】
 2. 用户问题：${userData.question}
 3. 对应卦象：${gua.name}，核心卦义：${gua.meaning}
+4. 卦象细节参考：${guaDetail}
 
 写作规则：
 1. 严格流程：捧起汉堡→第一口基底→中层展开→核心爆发→上层点缀→收尾→心绪→领悟
