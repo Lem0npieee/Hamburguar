@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamburguar - 汉堡卦象占卜</title>
+    <script>
+        tailwind = {
+            config: {
+                theme: {
+                    extend: {
+                        colors: {
+                            primary: '#FF8C38',
+                            secondary: '#FFF5E6',
+                            dark: '#2A2A2A'
+                        },
+                        fontFamily: {
+                            sans: ['Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'sans-serif']
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-secondary text-dark">
+    <!-- 页面1：首页 -->
+    <div id="page-home" class="page active text-center">
+        <div class="max-w-md w-full">
+            <h1 class="text-5xl font-bold mb-2 text-primary">Hamburguar</h1>
+            <p class="text-xl mb-8 opacity-80">DIY你的专属汉堡 · 解锁趣味卦象占卜</p>
+            <div class="mb-8">
+                <svg class="w-48 h-48 mx-auto" viewBox="0 0 220 220" role="img" aria-label="汉堡图标">
+                    <defs>
+                        <linearGradient id="bunTop" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" stop-color="#FFD7A8"/>
+                            <stop offset="100%" stop-color="#F2B57E"/>
+                        </linearGradient>
+                        <linearGradient id="bunBottom" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" stop-color="#F4BC86"/>
+                            <stop offset="100%" stop-color="#E8A96F"/>
+                        </linearGradient>
+                        <filter id="softShadow" x="-20%" y="-20%" width="140%" height="160%">
+                            <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#D08A4E" flood-opacity="0.28"/>
+                        </filter>
+                    </defs>
+
+                    <ellipse cx="110" cy="185" rx="64" ry="10" fill="#EEDCCA"/>
+
+                    <g filter="url(#softShadow)">
+                        <path d="M46 92 C46 56, 74 38, 110 38 C146 38, 174 56, 174 92 L174 100 C174 108, 146 114, 110 114 C74 114, 46 108, 46 100 Z" fill="url(#bunTop)"/>
+
+                        <ellipse cx="82" cy="64" rx="4" ry="2.2" fill="#FFF2D6"/>
+                        <ellipse cx="99" cy="58" rx="4" ry="2.2" fill="#FFF2D6"/>
+                        <ellipse cx="116" cy="63" rx="4" ry="2.2" fill="#FFF2D6"/>
+                        <ellipse cx="132" cy="57" rx="4" ry="2.2" fill="#FFF2D6"/>
+                        <ellipse cx="149" cy="64" rx="4" ry="2.2" fill="#FFF2D6"/>
+
+                        <rect x="54" y="108" width="112" height="12" rx="6" fill="#F08A32"/>
+                        <path d="M60 123 C76 132, 92 121, 108 129 C124 138, 142 122, 160 130 L160 136 L60 136 Z" fill="#4CAF50"/>
+                        <rect x="58" y="138" width="104" height="16" rx="8" fill="#8C5A43"/>
+                        <rect x="52" y="156" width="116" height="10" rx="5" fill="#FFBF1F"/>
+
+                        <rect x="48" y="168" width="124" height="28" rx="14" fill="url(#bunBottom)"/>
+                    </g>
+                </svg>
+            </div>
+            <button id="start-btn" class="btn-main text-lg">开始制作汉堡 · 占一卦</button>
+            <p class="mt-6 text-sm opacity-60">本项目纯属娱乐 · 非封建迷信</p>
+        </div>
+    </div>
+
+    <!-- 页面2：汉堡搭配页（顺序倒换：底胚→顶胚） -->
+    <div id="page-build" class="page">
+        <div class="max-w-md w-full">
+            <h2 class="text-3xl font-bold mb-6 text-center">定制你的汉堡卦</h2>
+            
+            <!-- 1. 底面包（初爻） -->
+            <div class="mb-6">
+                <label class="block font-semibold mb-2">1. 底面包（初爻）</label>
+                <div id="bottom-bun" class="grid-ingredients"></div>
+            </div>
+            <!-- 2. 下层馅料（二爻） -->
+            <div class="mb-6">
+                <label class="block font-semibold mb-2">2. 下层馅料（二爻）</label>
+                <div id="lower-fill" class="grid-ingredients"></div>
+            </div>
+            <!-- 3. 核心主馅（三爻） -->
+            <div class="mb-6">
+                <label class="block font-semibold mb-2">3. 核心主馅（三爻）</label>
+                <div id="main-fill" class="grid-ingredients"></div>
+            </div>
+            <!-- 4. 中层馅料（四爻） -->
+            <div class="mb-6">
+                <label class="block font-semibold mb-2">4. 中层馅料（四爻）</label>
+                <div id="mid-fill" class="grid-ingredients"></div>
+            </div>
+            <!-- 5. 上层馅料（五爻） -->
+            <div class="mb-6">
+                <label class="block font-semibold mb-2">5. 上层馅料（五爻）</label>
+                <div id="upper-fill" class="grid-ingredients"></div>
+            </div>
+            <!-- 6. 顶面包（上爻） -->
+            <div class="mb-6">
+                <label class="block font-semibold mb-2">6. 顶面包（上爻）</label>
+                <div id="top-bun" class="grid-ingredients"></div>
+            </div>
+
+            <!-- 占卜问题 -->
+            <div class="mb-8">
+                <label class="block font-semibold mb-2">你想占卜的问题（可选）</label>
+                <input id="user-question" type="text" placeholder="学业/工作/感情/日常都可以问..." 
+                    class="w-full py-3 px-4 border-2 border-primary/30 rounded-lg bg-white">
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="flex gap-4">
+                <button id="reset-btn" class="flex-1 py-3 border-2 border-primary/50 rounded-full text-primary">重置搭配</button>
+                <button id="submit-btn" class="flex-1 btn-main">生成占卜结果</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面3：结果页（新增卦象图+原文+释义） -->
+    <div id="page-result" class="page">
+        <div class="max-w-md w-full">
+            <h2 class="text-3xl font-bold mb-6 text-center">你的汉堡卦象</h2>
+            
+            <!-- 加载状态 -->
+            <div id="loading" class="text-center py-10">
+                <p class="text-lg">正在生成专属占卜结果...</p>
+            </div>
+            
+            <!-- 卦象核心信息（默认隐藏） -->
+            <div id="gua-info" class="hidden bg-white p-6 rounded-xl shadow-sm mb-4 text-center">
+                <div id="gua-svg" class="w-32 h-40 mx-auto mb-4"></div>
+                <h3 id="gua-name" class="text-2xl font-bold text-primary mb-2"></h3>
+                <p id="gua-original" class="text-sm italic text-dark/70 mb-2"></p>
+                <p id="gua-meaning" class="text-base font-medium"></p>
+            </div>
+
+            <!-- AI占卜文案 -->
+            <div id="result-content" class="hidden bg-white p-6 rounded-xl shadow-sm leading-relaxed mb-6"></div>
+            
+            <button id="restart-btn" class="btn-main w-full hidden">重新制作汉堡</button>
+        </div>
+    </div>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/app.js"></script>
+
+    <div id="app-toast" class="app-toast" role="status" aria-live="polite"></div>
+</body>
+</html>
