@@ -7,6 +7,8 @@ const blockedIngredientKeywords = ['饼干', '榨菜', '酸豆角', '梅干菜',
 
 let selected = createEmptySelection();
 let toastTimer = null;
+let loadingCycleTimer = null;
+let loadingStepTimers = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     sanitizeIngredientCatalog();
@@ -175,11 +177,93 @@ function generateGuaSvg(yaoCode) {
     return svg;
 }
 
+function ensureLoadingYaoRows() {
+    const container = document.getElementById('loading-yao');
+    if (!container) {
+        return [];
+    }
+
+    if (!container.children.length) {
+        for (let i = 0; i < 6; i++) {
+            const row = document.createElement('div');
+            row.className = 'loading-yao-row yin';
+            row.innerHTML = '<span></span><span></span>';
+            container.appendChild(row);
+        }
+    }
+
+    return Array.from(container.children);
+}
+
+function setLoadingRowType(rowEl, type) {
+    rowEl.classList.remove('yang', 'yin', 'show');
+    rowEl.classList.add(type);
+
+    if (type === 'yang') {
+        rowEl.innerHTML = '<span></span>';
+    } else {
+        rowEl.innerHTML = '<span></span><span></span>';
+    }
+}
+
+function clearLoadingAnimationTimers() {
+    if (loadingCycleTimer) {
+        clearTimeout(loadingCycleTimer);
+        loadingCycleTimer = null;
+    }
+
+    loadingStepTimers.forEach((timer) => clearTimeout(timer));
+    loadingStepTimers = [];
+}
+
+function runLoadingYaoCycle() {
+    const rows = ensureLoadingYaoRows();
+    if (!rows.length) {
+        return;
+    }
+
+    const randomPattern = Array.from({ length: 6 }, () => (Math.random() < 0.5 ? 'yin' : 'yang'));
+    rows.forEach((row, idx) => setLoadingRowType(row, randomPattern[idx]));
+
+    const revealOrder = [5, 4, 3, 2, 1, 0];
+    const initialDelay = 50;
+    const stepDuration = 95;
+
+    revealOrder.forEach((rowIndex, step) => {
+        const timer = setTimeout(() => {
+            rows[rowIndex].classList.add('show');
+        }, initialDelay + step * stepDuration);
+        loadingStepTimers.push(timer);
+    });
+
+    const cycleDuration = initialDelay + revealOrder.length * stepDuration + 420;
+    loadingCycleTimer = setTimeout(() => {
+        runLoadingYaoCycle();
+    }, cycleDuration);
+}
+
+function startLoadingYaoAnimation() {
+    clearLoadingAnimationTimers();
+    runLoadingYaoCycle();
+}
+
+function stopLoadingYaoAnimation() {
+    clearLoadingAnimationTimers();
+    const rows = ensureLoadingYaoRows();
+    rows.forEach((row) => row.classList.remove('show'));
+}
+
 function setResultLoading(isLoading) {
     document.getElementById('loading').classList.toggle('hidden', !isLoading);
     document.getElementById('gua-info').classList.toggle('hidden', isLoading);
     document.getElementById('result-content').classList.toggle('hidden', isLoading);
     document.getElementById('restart-btn').classList.toggle('hidden', isLoading);
+
+    if (isLoading) {
+        startLoadingYaoAnimation();
+    } else {
+        stopLoadingYaoAnimation();
+    }
 }
 
 function renderGuaInfo(gua, yaoCode) {
