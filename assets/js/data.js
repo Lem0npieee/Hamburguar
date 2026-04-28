@@ -14,6 +14,10 @@ window.APP_DATA = {
                 "yy": "yin"
             },
             {
+                "name": "原味底胚",
+                "yy": "yin"
+            },
+            {
                 "name": "黑麦底胚",
                 "yy": "yang"
             },
@@ -22,23 +26,19 @@ window.APP_DATA = {
                 "yy": "yang"
             },
             {
-                "name": "布里欧修底",
+                "name": "黄油底胚",
                 "yy": "yin"
             },
             {
-                "name": "恰巴塔底",
+                "name": "燕麦底胚",
                 "yy": "yang"
             },
             {
-                "name": "吐司底",
+                "name": "蜂蜜底胚",
                 "yy": "yin"
             },
             {
-                "name": "杂粮底",
-                "yy": "yang"
-            },
-            {
-                "name": "小餐包底",
+                "name": "白面包底",
                 "yy": "yin"
             }
         ],
@@ -60,8 +60,8 @@ window.APP_DATA = {
                 "yy": "yin"
             },
             {
-                "name": "黄瓜片",
-                "yy": "yin"
+                "name": "火腿片",
+                "yy": "yang"
             },
             {
                 "name": "芝士片",
@@ -73,22 +73,22 @@ window.APP_DATA = {
             },
             {
                 "name": "培根",
-                "yy": "yang"
+                "yy": "yin"
             },
             {
-                "name": "蘑菇片",
-                "yy": "yang"
+                "name": "蘑菇",
+                "yy": "yin"
             },
             {
                 "name": "牛油果片",
                 "yy": "yin"
             },
             {
-                "name": "番茄酱",
-                "yy": "yin"
+                "name": "薯饼",
+                "yy": "yang"
             },
             {
-                "name": "蛋黄酱",
+                "name": "玉米粒",
                 "yy": "yin"
             }
         ],
@@ -98,40 +98,36 @@ window.APP_DATA = {
                 "yy": "yang"
             },
             {
-                "name": "鸡腿排",
+                "name": "炸鸡排",
                 "yy": "yang"
             },
             {
-                "name": "鸡胸排",
+                "name": "炸猪排",
                 "yy": "yang"
             },
             {
                 "name": "鳕鱼排",
-                "yy": "yang"
+                "yy": "yin"
             },
             {
                 "name": "虾排",
+                "yy": "yin"
+            },
+            {
+                "name": "奥尔良鸡排",
                 "yy": "yang"
             },
             {
-                "name": "猪排",
+                "name": "午餐肉",
                 "yy": "yang"
             },
             {
-                "name": "火腿排",
-                "yy": "yang"
-            },
-            {
-                "name": "豆腐排",
+                "name": "蟹肉排",
                 "yy": "yin"
             },
             {
                 "name": "素肉饼",
                 "yy": "yin"
-            },
-            {
-                "name": "午餐肉",
-                "yy": "yang"
             }
         ],
         "midFill": [
@@ -164,7 +160,7 @@ window.APP_DATA = {
                 "yy": "yang"
             },
             {
-                "name": "彩椒丁",
+                "name": "玉米粒",
                 "yy": "yin"
             },
             {
@@ -176,11 +172,11 @@ window.APP_DATA = {
                 "yy": "yin"
             },
             {
-                "name": "蒜香酱",
-                "yy": "yang"
+                "name": "蜂蜜芥末酱",
+                "yy": "yin"
             },
             {
-                "name": "芥末酱",
+                "name": "辣酱",
                 "yy": "yang"
             }
         ],
@@ -226,11 +222,11 @@ window.APP_DATA = {
                 "yy": "yin"
             },
             {
-                "name": "蘑菇片",
+                "name": "烤肠",
                 "yy": "yang"
             },
             {
-                "name": "芝士碎",
+                "name": "荷包蛋",
                 "yy": "yang"
             }
         ],
@@ -248,6 +244,10 @@ window.APP_DATA = {
                 "yy": "yin"
             },
             {
+                "name": "原味汉堡胚",
+                "yy": "yin"
+            },
+            {
                 "name": "黑麦面包",
                 "yy": "yang"
             },
@@ -256,23 +256,19 @@ window.APP_DATA = {
                 "yy": "yang"
             },
             {
-                "name": "布里欧修",
+                "name": "黄油软面包",
                 "yy": "yin"
             },
             {
-                "name": "恰巴塔顶",
+                "name": "燕麦面包",
                 "yy": "yang"
             },
             {
-                "name": "杂粮顶",
-                "yy": "yang"
-            },
-            {
-                "name": "吐司顶",
+                "name": "蜂蜜面包",
                 "yy": "yin"
             },
             {
-                "name": "小餐包顶",
+                "name": "松软白面包",
                 "yy": "yin"
             }
         ]

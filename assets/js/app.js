@@ -3,9 +3,18 @@ const { API_KEY, API_URL, MODEL } = window.APP_CONFIG;
 
 const elementIds = ['bottom-bun', 'lower-fill', 'main-fill', 'mid-fill', 'upper-fill', 'top-bun'];
 const ingredientKeys = ['bottomBun', 'lowerFill', 'mainFill', 'midFill', 'upperFill', 'topBun'];
-const blockedIngredientKeywords = ['饼干', '榨菜', '酸豆角', '梅干菜', '薄荷', '藕片', '豆芽', '海苔', '鱼豆腐', '贝锅'];
+const layerLabels = {
+    bottomBun: '第1层',
+    lowerFill: '第2层',
+    mainFill: '第3层',
+    midFill: '第4层',
+    upperFill: '第5层',
+    topBun: '第6层'
+};
+const blockedIngredientKeywords = ['饼干', '榨菜', '酸豆角', '梅干菜', '薄荷', '藕片', '豆芽', '海苔', '鱼豆腐', '贝果'];
 
 let selected = createEmptySelection();
+const customInputs = {};
 let toastTimer = null;
 let loadingCycleTimer = null;
 let loadingStepTimers = [];
@@ -58,15 +67,30 @@ function createEmptySelection() {
 function initIngredientButtons() {
     ingredientKeys.forEach((key, idx) => {
         const container = document.getElementById(elementIds[idx]);
+        if (!container) {
+            return;
+        }
+
         ingredients[key].forEach((item) => {
             const btn = document.createElement('button');
             btn.className = 'burger-btn';
+            btn.type = 'button';
             btn.textContent = item.name;
             btn.dataset.name = item.name;
             btn.dataset.yy = item.yy;
             btn.addEventListener('click', () => selectIngredient(key, btn));
             container.appendChild(btn);
         });
+
+        const customBtn = document.createElement('button');
+        customBtn.className = 'burger-btn burger-btn-custom';
+        customBtn.type = 'button';
+        customBtn.textContent = '自定义';
+        customBtn.dataset.custom = '1';
+        customBtn.addEventListener('click', () => selectIngredient(key, customBtn));
+        container.appendChild(customBtn);
+
+        createCustomIngredientInput(key, container);
     });
 }
 
@@ -74,7 +98,66 @@ function selectIngredient(type, btn) {
     const siblings = btn.parentElement.querySelectorAll('.burger-btn');
     siblings.forEach((sibling) => sibling.classList.remove('active'));
     btn.classList.add('active');
-    selected[type] = { name: btn.dataset.name, yy: btn.dataset.yy };
+
+    const isCustom = btn.dataset.custom === '1';
+    if (!isCustom) {
+        selected[type] = { name: btn.dataset.name, yy: btn.dataset.yy, isCustom: false };
+        toggleCustomInput(type, false);
+        return;
+    }
+
+    toggleCustomInput(type, true);
+    const inputEl = customInputs[type];
+    const value = (inputEl?.value || '').trim();
+    selected[type] = { name: value, yy: null, isCustom: true };
+    if (inputEl) {
+        inputEl.focus();
+    }
+}
+
+function createCustomIngredientInput(type, container) {
+    const wrap = document.createElement('div');
+    wrap.className = 'hidden custom-input-wrap';
+    wrap.dataset.customFor = type;
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.maxLength = 20;
+    input.placeholder = '输入自定义配料';
+    input.className = 'w-full py-2 px-3 border-2 border-primary/30 rounded-lg bg-white text-sm custom-ingredient-input';
+    input.addEventListener('input', () => applyCustomIngredientValue(type, input));
+    input.addEventListener('blur', () => applyCustomIngredientValue(type, input));
+
+    wrap.appendChild(input);
+    container.insertAdjacentElement('afterend', wrap);
+    customInputs[type] = input;
+}
+
+function toggleCustomInput(type, visible) {
+    const inputEl = customInputs[type];
+    if (!inputEl) {
+        return;
+    }
+    const wrap = inputEl.parentElement;
+    if (!wrap) {
+        return;
+    }
+    wrap.classList.toggle('hidden', !visible);
+    if (!visible) {
+        inputEl.classList.remove('input-invalid');
+    }
+}
+
+function applyCustomIngredientValue(type, inputEl) {
+    const value = (inputEl.value || '').trim();
+    if (selected[type]?.isCustom) {
+        selected[type].name = value;
+        selected[type].yy = null;
+    }
+
+    if (value) {
+        inputEl.classList.remove('input-invalid');
+    }
 }
 
 function bindEvents() {
@@ -115,6 +198,17 @@ function resetAll() {
     document.querySelectorAll('.burger-btn').forEach((btn) => btn.classList.remove('active'));
     document.getElementById('user-question').value = '';
     document.getElementById('user-question').classList.remove('input-invalid');
+
+    ingredientKeys.forEach((key) => {
+        const inputEl = customInputs[key];
+        if (!inputEl) {
+            return;
+        }
+        inputEl.value = '';
+        inputEl.classList.remove('input-invalid');
+        toggleCustomInput(key, false);
+    });
+
     selected = createEmptySelection();
 }
 
@@ -141,7 +235,6 @@ function yinYangToBit(value) {
 }
 
 function buildYaoCode() {
-    // 标准六码顺序：上爻到初爻（顶面包到底面包）。
     return [
         selected.topBun.yy,
         selected.upperFill.yy,
@@ -160,7 +253,6 @@ function generateGuaSvg(yaoCode) {
     const totalHeight = lineHeight * 6 + lineGap * 5;
     const startY = (160 - totalHeight) / 2;
 
-    // 码值已是“上爻到初爻”，可直接从上到下绘制。
     for (let row = 0; row < 6; row++) {
         const bit = yaoCode[row];
         const y = startY + row * lineStep;
@@ -277,7 +369,7 @@ function buildPrompt(gua, userData) {
     const guaDetail = (gua.detail || '').trim() || '暂无详细释义';
 
     return `
-你是「Hamburguar」专属文案生成师，生成沉浸式美食占卜文案。
+你是「Hamburguar」专属文案生成师，请基于用户汉堡组合生成占卜风格文案。
 输入信息：
 1. 汉堡配料：顶面包【${userData.topBun}】、上层馅料【${userData.upperFill}】、中层馅料【${userData.midFill}】、核心主馅【${userData.mainFill}】、下层馅料【${userData.lowerFill}】、底面包【${userData.bottomBun}】
 2. 用户问题：${userData.question}
@@ -285,21 +377,17 @@ function buildPrompt(gua, userData) {
 4. 卦象细节参考：${guaDetail}
 
 写作规则：
-
-
-1. 严格流程：拿起汉堡→第一口基底→中层展开→核心爆发→上层点缀→收尾→问题的答案和决策建议
-2. 只能输出一整段文本，内容保持连贯通顺，禁止分行或列点输出。
-3. 自然描写食材口感，心绪层层递进
-4. 结尾紧扣卦义+回应用户问题，给出具体可行的建议，而非泛泛而谈的鸡汤文
-5. 全文不分段，200-250字，文笔生动
-6. 生成的段落中一定要记得回答用户的问题，不能只是泛泛而谈，要能够切实帮助他们思考和解决问题，如果信息不确定，也必须给“偏向结论 + 条件触发”
-7. 严禁阴阳、爻、卦辞等专业术语
-    `;
+1. 严格遵循叙事顺序：拿起汉堡→入口层次→核心爆发→收束建议。
+2. 只输出一整段，不分点不换段。
+3. 结尾必须回应用户问题，给出可执行建议。
+4. 全文约 200-250 字，语气温暖、具体、克制。
+5. 禁止出现“阴阳、爻、卦辞”等专业术语。
+`;
 }
 
 function buildLocalResult(gua, userData) {
     const questionText = userData.question === '无具体问题' ? '此刻你心里那件还未说出口的事' : userData.question;
-    return `你捧起这只汉堡，先感到${userData.bottomBun}的扎实，再被${userData.lowerFill}和${userData.midFill}慢慢托住节奏，咬到${userData.mainFill}时情绪像被点亮，最后由${userData.upperFill}与${userData.topBun}收成温柔余味。这个组合对应「${gua.name}」，提示你在面对“${questionText}”时，不必急着给出最硬的答案，先稳住当下可控的部分，再把关键一步做准。你会发现，真正让局面变好的，不是突然的好运，而是每一层都放在了合适的位置。`;
+    return `你捧起这只汉堡，先感到${userData.bottomBun}带来的稳定，再被${userData.lowerFill}与${userData.midFill}慢慢托住节奏，咬到${userData.mainFill}时情绪被点亮，最后由${userData.upperFill}和${userData.topBun}收成余味。这个组合对应「${gua.name}」，提示你面对「${questionText}」时，先稳住可控部分，再推进关键一步。真正让局面变好的，不是突然的好运，而是你把每一层都放在了合适的位置。`;
 }
 
 async function callAI(gua, userData) {
@@ -334,6 +422,151 @@ async function callAI(gua, userData) {
     return content;
 }
 
+function normalizeIngredientName(name) {
+    return String(name || '').trim().toLowerCase();
+}
+
+function buildCustomYYPrompt(uniqueItems) {
+    const payload = uniqueItems.map((item) => ({
+        id: item.id,
+        ingredient: item.name
+    }));
+
+    return [
+        '你是食材阴阳分类助手。请根据食材属性、烹饪方式与体感倾向判断阴(yin)/阳(yang)。',
+        '只输出 JSON，不要输出其他文字。',
+        '输出格式：{"items":[{"id":"i1","yy":"yin"}]}',
+        '要求：yy 只能是 "yin" 或 "yang"。',
+        `输入数据：${JSON.stringify(payload)}`
+    ].join('\n');
+}
+
+function extractJsonObject(text) {
+    if (!text) {
+        return null;
+    }
+
+    const trimmed = text.trim();
+    try {
+        return JSON.parse(trimmed);
+    } catch (error) {
+        // Continue.
+    }
+
+    const fencedMatch = trimmed.match(/```json\s*([\s\S]*?)\s*```/i);
+    if (fencedMatch?.[1]) {
+        try {
+            return JSON.parse(fencedMatch[1].trim());
+        } catch (error) {
+            // Continue.
+        }
+    }
+
+    const blockMatch = trimmed.match(/\{[\s\S]*\}/);
+    if (blockMatch?.[0]) {
+        try {
+            return JSON.parse(blockMatch[0]);
+        } catch (error) {
+            return null;
+        }
+    }
+
+    return null;
+}
+
+async function classifyCustomIngredients(uniqueItems) {
+    if (!uniqueItems.length) {
+        return {};
+    }
+    if (!API_KEY) {
+        throw new Error('missing_api_key_for_custom_classification');
+    }
+
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+            model: MODEL,
+            messages: [{ role: 'user', content: buildCustomYYPrompt(uniqueItems) }],
+            temperature: 0,
+            max_tokens: 240
+        })
+    });
+
+    if (!response.ok) {
+        throw new Error(`custom_classification_failed_${response.status}`);
+    }
+
+    const result = await response.json();
+    const content = result?.choices?.[0]?.message?.content;
+    const parsed = extractJsonObject(content);
+    const items = Array.isArray(parsed?.items) ? parsed.items : [];
+    const mapped = {};
+
+    items.forEach((item) => {
+        const key = item?.id;
+        const yy = item?.yy === 'yin' ? 'yin' : item?.yy === 'yang' ? 'yang' : null;
+        if (key && yy) {
+            mapped[key] = yy;
+        }
+    });
+
+    return mapped;
+}
+
+async function resolveCustomSelectionYY() {
+    const customItems = ingredientKeys
+        .filter((key) => selected[key]?.isCustom)
+        .map((key) => ({ key, name: (selected[key].name || '').trim() }));
+
+    if (!customItems.length) {
+        return;
+    }
+
+    const missing = customItems.find((item) => !item.name);
+    if (missing) {
+        const inputEl = customInputs[missing.key];
+        if (inputEl) {
+            inputEl.classList.add('input-invalid');
+            inputEl.focus();
+        }
+        throw new Error(`missing_custom_name_${missing.key}`);
+    }
+
+    const uniqueMap = new Map();
+    customItems.forEach((item) => {
+        const normalizedName = normalizeIngredientName(item.name);
+        if (!uniqueMap.has(normalizedName)) {
+            uniqueMap.set(normalizedName, {
+                id: `i${uniqueMap.size + 1}`,
+                name: item.name,
+                normalizedName
+            });
+        }
+    });
+
+    const uniqueItems = Array.from(uniqueMap.values());
+    const yyByUniqueId = await classifyCustomIngredients(uniqueItems);
+    const yyByName = {};
+    uniqueItems.forEach((item) => {
+        if (yyByUniqueId[item.id]) {
+            yyByName[item.normalizedName] = yyByUniqueId[item.id];
+        }
+    });
+
+    const unresolved = customItems.filter((item) => !yyByName[normalizeIngredientName(item.name)]);
+    if (unresolved.length) {
+        throw new Error('custom_classification_unresolved');
+    }
+
+    customItems.forEach((item) => {
+        selected[item.key].yy = yyByName[normalizeIngredientName(item.name)];
+    });
+}
+
 async function generateResult() {
     const questionInput = document.getElementById('user-question');
     const questionText = questionInput.value.trim();
@@ -352,6 +585,29 @@ async function generateResult() {
 
     questionInput.classList.remove('input-invalid');
 
+    switchPage('page-result');
+    setResultLoading(true);
+
+    try {
+        await resolveCustomSelectionYY();
+    } catch (error) {
+        const msg = String(error?.message || '');
+        const layerKey = msg.startsWith('missing_custom_name_') ? msg.replace('missing_custom_name_', '') : '';
+
+        if (layerLabels[layerKey]) {
+            showToast(`${layerLabels[layerKey]}的自定义配料还未填写`);
+        } else if (msg === 'missing_api_key_for_custom_classification') {
+            showToast('自定义配料需要 AI 判阴阳，请先配置 API Key');
+        } else {
+            showToast('自定义配料阴阳判定失败，请稍后重试');
+        }
+
+        setResultLoading(false);
+        switchPage('page-build');
+        console.error('自定义配料判定失败:', error);
+        return;
+    }
+
     const userData = {
         topBun: selected.topBun.name,
         upperFill: selected.upperFill.name,
@@ -365,8 +621,6 @@ async function generateResult() {
     const yaoCode = buildYaoCode();
     const gua = guaMap[yaoCode] || defaultGua;
 
-    switchPage('page-result');
-    setResultLoading(true);
     renderGuaInfo(gua, yaoCode);
 
     try {

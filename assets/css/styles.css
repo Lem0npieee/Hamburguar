@@ -81,6 +81,15 @@
     animation: ingredient-pop 0.28s ease-out;
 }
 
+.burger-btn-custom {
+    border-style: dashed;
+}
+
+.custom-input-wrap {
+    margin-top: -0.25rem;
+    margin-bottom: 0.75rem;
+}
+
 .btn-main {
     background: var(--primary);
     color: #fff;
